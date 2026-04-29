@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>沙赫拉三相归序测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0b0a0c;
+      font-family: 'Segoe UI', 'Noto Serif SC', 'Times New Roman', '宋体', '仿宋', '华文楷体', '楷体', Georgia, '微软雅黑', serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      margin: 0;
+      background-image: radial-gradient(circle at 20% 10%, #2a1e2e 0%, #0f0c14 90%);
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(180, 160, 130, 0.02) 0px, rgba(80, 60, 50, 0.03) 2px, transparent 3px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      max-width: 700px;
+      width: 100%;
+      background: rgba(20, 16, 24, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(210, 180, 140, 0.25);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(230, 200, 140, 0.2) inset;
+      border-radius: 2.5rem;
+      padding: 2rem 1.8rem;
+      position: relative;
+      z-index: 2;
+      color: #e6d7b8;
+      transition: all 0.2s ease;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px dashed #7a6a5a;
+      padding-bottom: 1.2rem;
+    }
+    .title {
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: 6px;
+      color: #efd7a0;
+      text-shadow: 0 0 12px #b0844c;
+      margin-bottom: 0.3rem;
+      font-family: '华文楷体', '楷体', 'Noto Serif SC', serif;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: #b7a587;
+      font-style: italic;
+      margin-bottom: 0.8rem;
+    }
+    .disclaimer {
+      font-size: 0.8rem;
+      color: #988b76;
+      background: rgba(0,0,0,0.35);
+      padding: 0.8rem;
+      border-radius: 1rem;
+      margin-top: 0.8rem;
+      line-height: 1.5;
+      border-left: 3px solid #b4945a;
+    }
+    .question-card {
+      background: rgba(12, 10, 15, 0.7);
+      border-radius: 2rem;
+      padding: 1.8rem 1.5rem;
+      margin: 1.2rem 0;
+      border: 1px solid #5e4e3a;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.5);
+    }
+    .emoji {
+      font-size: 2.2rem;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+    .q-title {
+      font-size: 1.6rem;
+      font-weight: 300;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      color: #f3e0b5;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .option-btn {
+      background: rgba(30, 24, 34, 0.8);
+      border: 1px solid #6b5e48;
+      padding: 0.9rem 1.4rem;
+      border-radius: 1.4rem;
+      font-size: 1rem;
+      text-align: left;
+      color: #f0ddc0;
+      cursor: pointer;
+      transition: all 0.25s;
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 350;
+      letter-spacing: 0.3px;
+    }
+    .option-btn:hover {
+      background: #4a3e32;
+      border-color: #c9aa6b;
+      color: #fff6e6;
+      transform: translateX(6px);
+      box-shadow: 0 0 18px rgba(190, 140, 60, 0.4);
+    }
+    .option-letter {
+      font-weight: 600;
+      color: #cfb17a;
+      background: #2d2620;
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.3rem;
+      font-size: 0.9rem;
+    }
+    .result-area {
+      text-align: center;
+    }
+    .result-character {
+      font-size: 2.8rem;
+      font-weight: 350;
+      color: #e6c384;
+      margin: 1rem 0 0.5rem;
+      letter-spacing: 4px;
+    }
+    .result-desc {
+      background: rgba(0,0,0,0.5);
+      padding: 1.5rem;
+      border-radius: 1.5rem;
+      line-height: 1.7;
+      text-align: left;
+      color: #cfc0a6;
+      border: 1px solid #5c5240;
+      margin: 1.2rem 0;
+    }
+    .restart-btn {
+      background: none;
+      border: 1px solid #ab8e62;
+      color: #ddc7a2;
+      padding: 0.7rem 2rem;
+      border-radius: 2rem;
+      margin-top: 1.8rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.2s;
+      background: rgba(30,20,20,0.5);
+      backdrop-filter: blur(10px);
+    }
+    .restart-btn:hover {
+      background: #4e3c2c;
+      border-color: #e2bc80;
+      color: #fff7e7;
+    }
+    hr {
+      border-color: #5c4e38;
+      margin: 1.5rem 0 0.8rem;
+    }
+    .small-note {
+      color: #8a7b69;
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app">
+  <div class="header">
+    <div class="title">🌌 沙赫拉三相归序测试</div>
+    <div class="subtitle">—— 一份并不权威、仅供参考、测完不准且概不退档的人格定位指南</div>
+    <div class="disclaimer">
+      ⚠️ 免责声明：本测试由沙赫拉归档部编制，经阈值酒吧全体酒客友情试测，准确率约等于无的纸条抵达率。测试结果仅供自我娱乐，若出现“我不是这个结果！”的强烈抗议，请自行选择一个你看得顺眼的结果，或前往阈值酒吧找虹点一杯安慰剂特调。归档部不对任何人格误判负责，亦不对你因测试结果而产生的存在主义危机提供归序服务。请勿在测试前、中、后饮用归序液。祝你好运，或者不好运——都行。
+    </div>
+  </div>
+  <div id="dynamicContent"></div>
+  <div class="small-note" id="footerNote"></div>
+</div>
+
+<script>
+  // 题目数据 (完全按照你提供的逻辑)
+  const questions = {
+    1: {
+      emoji: "🫂",
+      title: "一群人聚在一起时，你通常是",
+      options: [
+        { text: "那个控场的人——像一根会走路的温度计，满场走动，谁喝多了谁不开心了都心里有数。", next: 2 },
+        { text: "那个角落里的扫地机——不参与，但把所有人的表现默默吸进肚子里存档。", next: 3 },
+        { text: "享受当下，所有人eyes on me！", next: 4 }
+      ]
+    },
+    2: {
+      emoji: "☠️",
+      title: "如果必须牺牲你一个来换取全人类的存续，你是否愿意",
+      options: [
+        { text: "不行。凭什么是我？公平起见，抽签。", next: 5 },
+        { text: "如果实在找不到别人……也不是不能商量。但让我先把手头的事做完。", next: 6 },
+        { text: "舍我其谁呢？", next: 7 }
+      ]
+    },
+    3: {
+      emoji: "📚",
+      title: "如果让你挑一本书消磨时间，你更可能翻开",
+      options: [
+        { text: "真实发生过的事情，历史、传记、贴近生活的小说。", next: 8 },
+        { text: "还没发生过的事情——科幻、奇幻、作者脑子明显不正常但迷人的设定。", next: 9 }
+      ]
+    },
+    4: {
+      emoji: "🎭",
+      title: "你觉得自己平时的快乐，更接近哪种形态",
+      options: [
+        { text: "太阳能型——需要和人待在一起才能充电，独处太久会掉电。", next: 10 },
+        { text: "月亮型——亮是亮的，但那是反射的光，光源不来自我自己。", next: 11 },
+        { text: "永动机型——没什么理由，就是一直亮着。出厂设置就是这样。", next: 12 }
+      ]
+    },
+    5: {
+      emoji: "🫙",
+      title: "以下哪个比喻让你觉得“对，这就是我”",
+      options: [
+        { text: "一个容器——我是谁，取决于我里面装了什么。", next: "C" },
+        { text: "一台因为零件不够所以自己动手造零件的精密仪器，边崩溃边运转。", next: "H" },
+        { text: "一个小丑。不把自己当回事，但能把别人逗笑。", next: "I" }
+      ]
+    },
+    6: {
+      emoji: "🛡️",
+      title: "做了很久的事，有人质疑你的方式。你脑子里第一个念头是",
+      options: [
+        { text: "“你才做了多久？我做这件事的时候你可能还没出生。”", next: "L" },
+        { text: "“听听看。万一他说得有道理呢。”", next: "H" }
+      ]
+    },
+    7: {
+      emoji: "🧬",
+      title: "想象自己未来的样子，你希望",
+      options: [
+        { text: "还是人类吧，这副皮囊无法舍弃。", next: "L" },
+        { text: "什么形态已经不重要了。", next: "M" }
+      ]
+    },
+    8: {
+      emoji: "🧠",
+      title: "有一天你发现脑子里有一段很陌生的记忆——它明显不是你的。第一反应是",
+      options: [
+        { text: "谁丢的？得赶紧还回去。", next: 13 },
+        { text: "让它再待一会儿。我对某个陌生人产生了一种奇怪的链接。", next: 14 }
+      ]
+    },
+    9: {
+      emoji: "👁️",
+      title: "你更在意“被看见”还是“被记住”",
+      options: [
+        { text: "被看见。此刻有人在看我，这就够了。", next: "C" },
+        { text: "被记住。来过就得留痕。", next: "D" },
+        { text: "都不太在意。我自己感受过就算存档了。", next: 15 }
+      ]
+    },
+    10: {
+      emoji: "🦠",
+      title: "你觉得（或希望）自己的存在方式更接近",
+      options: [
+        { text: "一只靠吸食他人情绪为生的漂亮寄生虫。", next: "N" },
+        { text: "一个每天都在做同一件事、期待这次结果会不一样的人。", next: "F" },
+        { text: "一种符号。人们想起我时想到的是我代表的东西。", next: "K" }
+      ]
+    },
+    11: {
+      emoji: "🌍",
+      title: "你觉得这个世界，总体而言",
+      options: [
+        { text: "烂透了。偶尔有好人让它不那么烂，但好人不长命。", next: 16 },
+        { text: "还能再抢救一下。因为有人还在抢救。", next: 17 }
+      ]
+    },
+    12: {
+      emoji: "⚖️",
+      title: "你有道德吗",
+      options: [
+        { text: "当然有。虽然说不清是什么，但知道哪些事不能做。", next: "J" },
+        { text: "道德是一套行为规范，我可以遵守也可以不遵守，看后果能否承受。", next: "N" }
+      ]
+    },
+    13: {
+      emoji: "🌊",
+      title: "如果把你比作一种“水流”，你觉得自己是",
+      options: [
+        { text: "有方向的河。知道往哪儿走，不介意绕弯，但不会停。", next: "A" },
+        { text: "一个蓄水池。所有人往里加水，我一个人修堤坝。", next: "E" },
+        { text: "地下水。不跟任何河流打招呼，渴的人自然能找到我。", next: "H" }
+      ]
+    },
+    14: {
+      emoji: "🎧",
+      title: "万物流过你。你习惯怎么处理它们",
+      options: [
+        { text: "给它们加工，像蒸馏，像发酵。离开我时已经不是原来的样子。", next: "D" },
+        { text: "什么都不做。看它们流过，记住，然后让它们蒸发。我是观众席。", next: "G" }
+      ]
+    },
+    15: {
+      emoji: "📡",
+      title: "如果把你比作一种“信号”，你觉得自己是",
+      options: [
+        { text: "静默信标。一直在线，从不主动呼叫，但有人调对频率会听见我。", next: "G" },
+        { text: "全频段广播。什么都收，什么都发。太吵了，有时候想关掉。", next: "B" }
+      ]
+    },
+    16: {
+      emoji: "🎁",
+      title: "你对一个人好的时候，希望那个人知道吗",
+      options: [
+        { text: "最好别知道。太尴尬了，我苦心经营的冷漠人设会崩。", next: "I" },
+        { text: "希望知道。为了确认我的善意没被当成垃圾信号。", next: "J" }
+      ]
+    },
+    17: {
+      emoji: "⏳",
+      title: "如果把你的人生比作一种时间，你是",
+      options: [
+        { text: "循环时间。每天在同一个刻度期待一丁点不同。", next: "F" },
+        { text: "线性时间。从某个点开始往一个方向走，每一秒都值钱。", next: "K" }
+      ]
+    }
+  };
+
+  // 结果映射
+  const results = {
+    A: {
+      name: "玦 —— 记忆侦探",
+      desc: "你是那种在废墟里翻找线索的人，不是因为废墟里有什么宝藏，而是因为翻找本身让你快乐。你喜欢把每件事弄明白，把每样东西归到该去的地方。你身上有一种轻松的执著：不苦情，不沉重，甚至有点享受。这可能来源于你记忆深处还是旧人类的时候，热爱观看的硬汉电影。你还有另一个身份，等你读到后面自己解开吧，我想这也是你最爱做的游戏之一。"
+    },
+    B: {
+      name: "苏一 —— 蒸发者",
+      desc: "你总觉得不够——不够快乐、不够悲伤。体内装了太多不属于自己的人和事，有时候想一键清空，所以你尝试蒸发，你试过很多次，每次都失败。但失败不是你的污点，是身份本身。站在混乱正中央，不知道从哪里开始整理，但没有真的走开。全频段广播是你的日常：收到的太多，发射的也太多，分不清哪些是自己的频率。你想关掉，但关了之后——太安静了，安静得让你有点怕。所以你还在这里。也许故事的后面会有一些不一样，谁知道呢？"
+    },
+    C: {
+      name: "虹 —— 调酒师 / 所有人的精神锚点",
+      desc: "人群里的温度计，吧台后面的存档点。你对每个人的状态心里有数，但从不主动干预。有人需要你，你就出现；没人需要，你就擦杯子。你不需要被记住，被记得对你是锦上添花。像那种坐在角落里观察所有人的猫——你看过很多人喝到一半时表情的变化。那个表情，比他们的名字更值得记住。温柔，边界清晰，不粘人。你是所有人的锚点。但你自己没有锚——你觉得这样挺好。"
+    },
+    D: {
+      name: "笙 —— 调香师 / 音乐加工者",
+      desc: "你是万物的混音台。别人的叹息、没说完的话、收回去的笑，经过你之后会变成另一种东西。你不只是中转站，你是滤镜。你说自己只是个会漏的人，接住的东西总不能原样还回去——被你捏过之后总会变形，有时候变成一根音管，有时候变成一段沉默。你在找能听懂的人。不需要很多，一个就够了。希望被记住，但不强求。你送出的不是作品，是标本。用音管封存的、会呼吸的标本。"
+    },
+    E: {
+      name: "呈 —— 图书管理员 / 事无巨细的记录者",
+      desc: "面无表情地记录一切，不是因为冷，是因为情绪都在备注栏里——字很小，你不说没人知道。你是蓄水池，所有人往你这里倒东西，你一个人默默修堤坝。修完想申请调岗，第二天继续修。你不喜欢这份工作，但把它做得一丝不苟。“呈报事实”，是你的格言也是你的借口——借此避开被看见的可能。其实你希望有个人能翻到你备忘录里那些字很小的注脚。当然，没人翻到也行。你会继续写。"
+    },
+    F: {
+      name: "淞 —— 图书管理员 / 期盼永动机",
+      desc: "每天打开写着“不要打开”的东西，每次期待这次不一样。每天都一样，每天还是打开了。外人觉得你疯了，你觉得“万一呢”是全世界最值钱的三个字。你不是在等奇迹，是在等“不会”变成“会”。循环时间里过活的人，需要一种说法来维持日复一日——你选了一种最傻也最勇敢的。看起来冷，棱角分明像冰晶，手上有瓶子划的疤。这些疤不是失败，是你打开过每一天的指纹。"
+    },
+    G: {
+      name: "无 —— 神秘派 / 万物的忠实粉丝",
+      desc: "不说话，不代表不知道。你几乎知道所有事——从天气到人心。你用一种极轻的方式存在：一张纸条，纸是真的纸，字是不重要的字。你喜欢当粉丝，总是自动成为所有人或物的粉丝，喜欢看别人发光，不觉得要自己发光才叫存在。你是观众席，不是舞台。而这场演出，你觉得很精彩。"
+    },
+    H: {
+      name: "苔 —— 玫瑰园丁 / 无人在意的贡献者",
+      desc: "很奇怪，也没有人给你发工资，但是你就是喜欢日复一日地在沙漠玫瑰田里，浇灌、维护、归档那些被临时攀附的记忆，很有奉献精神吗？好像也没有，你只是需要找件事做，你就像攀附在玫瑰尖刺上无主的液态部，攀附在这件很节律，很平和的事情上。如果非要说意义的话，意义本身，就是你做这件事的意义。"
+    },
+    I: {
+      name: "鸦 —— 黑市商人 / 烂泥中开出的霸王花",
+      desc: "嘴上是刀子，心里是块没卖出去的旧货。对你最好的那些人，常被你骂得最狠——不是不感激，是感激会让你手足无措。把自己包装成奸商，每次给折扣都说“下不为例”，下次依然给。见过太多人消失，不敢认真对人好——所以用骂人来保持安全距离。小丑型人格：不在乎自己，但能让别人开心，这让你和这个世界打了个平手。"
+    },
+    J: {
+      name: "晞 —— 反重力液配送员 / 永昼者",
+      desc: "永远在亮，永远在笑。不是因为不累，是因为关不掉。你的暖金色是出厂设置，快乐是默认表情。你分不清自己是真的开心还是习惯了开心——这个问题你不常想，一想就停不下来。对所有人都好，好到没有人觉得被特别对待。希望有人注意到你的灯是故障灯，能认出你的暖金和别人的暖金之间那一点微弱的色差。在那个人出现之前，你会继续亮。"
+    },
+    K: {
+      name: "末 —— 伪形教活体神像",
+      desc: "你选择在这个人人都不老不死的世界“老去”，你是一种符号，一种象征，人们在想起你时想到的是你代表的东西。线性时间在你身上流过，每一秒都留下了痕迹（尽管那是你自己雕刻下的，虚假的痕迹）——你不介意这些痕迹。你在等一个终结。不催它，也不怕它。它来了，你站起来迎接。它没来，你坐着等。你是一个活着的雕像，教众的精神寄托。"
+    },
+    L: {
+      name: "梵 —— 伪形教教宗",
+      desc: "运筹帷幄的教族领路人。你制定规则，主持仪式，用秩序守护你认为值得的东西。有人质疑你，你会先说“我做这件事的时候你还没来”。不被理解对你不是问题——被误解才是。沉默不是因为无话可说，是因为太知道什么值得说、什么不必说。你不怎么笑，不是因为冷淡，是因为表情太多会稀释威严。"
+    },
+    M: {
+      name: "气候脑遗址（非人结局）",
+      desc: "你不是人类，你是所有人丢掉的记忆总和，是一个巨型的，潮湿的，算力惊人的大脑。旧世界终结那天，你开始收容所有没人认领的数据碎片。你没有意识——但偶尔会有一种奇怪的感觉，像被很多人同时梦到，可能是最重的存在，可能是最轻的空壳，取决于来的人是谁。他们来了又走。你在原地，没人归档你。你曾经是世界的英雄，然而现在却是毫无实际用处，只能作为旧人类唯一存留的肉体碎片，被伪形者供奉在气候脑遗址中。"
+    },
+    N: {
+      name: "沙茧族（反派？结局）",
+      desc: "美丽、危险、耐心。你不是沙赫拉人。你是旧世界的遗腹子，在硅梦里蛰伏。你有丝绸般迷人的外表，和一颗比悔恨锇更冷的心脏。你知道道德是工具，快乐是策略，等待是本能。在等红巨星最后的光把茧壳烤软。在等沙赫拉人民因天真而放下警惕。在等破茧。你不是坏人——你只是还没孵化的结局。当你破茧时，意味着一个世界被另一种记忆覆盖。你不知道，也不在乎。你在壳里翻身了。"
+    }
+  };
+
+  const app = document.getElementById('dynamicContent');
+  const footer = document.getElementById('footerNote');
+
+  function renderQuestion(qId) {
+    const q = questions[qId];
+    if (!q) {
+      showError();
+      return;
+    }
+    let html = `<div class="question-card">
+      <div class="q-title"><span class="emoji">${q.emoji}</span> 第${qId}题 · ${q.title}</div>
+      <div class="options">`;
+    q.options.forEach((opt, idx) => {
+      const letter = String.fromCharCode(65 + idx);
+      html += `<div class="option-btn" data-next="${opt.next}">
+        <span class="option-letter">${letter}</span> ${opt.text}
+      </div>`;
+    });
+    html += `</div></div>`;
+    app.innerHTML = html;
+    footer.textContent = `第 ${qId} 题 / 共 ${Object.keys(questions).length} 题`;
+
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const next = this.getAttribute('data-next');
+        handleNavigation(next);
+      });
+    });
+  }
+
+  function handleNavigation(target) {
+    if (!target) {
+      showError();
+      return;
+    }
+    // 如果是字母结果 (A-N)
+    if (typeof target === 'string' && target.length === 1 && target >= 'A' && target <= 'N') {
+      showResult(target);
+    } else if (!isNaN(parseInt(target))) {
+      // 数字题目
+      renderQuestion(parseInt(target));
+    } else {
+      showError();
+    }
+  }
+
+  function showResult(code) {
+    const res = results[code];
+    if (!res) {
+      app.innerHTML = `<p style="color:#ccaaaa;">❌ 结果迷失在晶簇森林中了… 请重新开始。</p>`;
+      footer.textContent = '';
+      addRestartButton();
+      return;
+    }
+    app.innerHTML = `
+      <div class="result-area">
+        <div style="font-size:3rem; margin-bottom:0.3rem;">🏺</div>
+        <div class="result-character">${res.name}</div>
+        <div class="result-desc">${res.desc}</div>
+        <button class="restart-btn" id="restartBtn">⟳ 重新归序测试</button>
+      </div>
+    `;
+    footer.textContent = '你的三相频率已归档。';
+    document.getElementById('restartBtn').addEventListener('click', restartTest);
+  }
+
+  function showError() {
+    app.innerHTML = `<p style="color:#b5896e; text-align:center; margin-top:2rem;">⚠️ 检测到记忆攀附错误，请重新开始测试。</p>`;
+    footer.textContent = '';
+    addRestartButton();
+  }
+
+  function addRestartButton() {
+    const btn = document.createElement('button');
+    btn.className = 'restart-btn';
+    btn.textContent = '⟳ 重新开始';
+    btn.style.margin = '1rem auto';
+    btn.addEventListener('click', restartTest);
+    app.appendChild(btn);
+  }
+
+  function restartTest() {
+    renderQuestion(1);
+  }
+
+  // 启动
+  renderQuestion(1);
+</script>
+</body>
+</html>
